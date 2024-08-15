@@ -1,13 +1,14 @@
 import pygame as game
 import numpy
 class BOUNDARY:
-    def __init__(self, x1, y1, x2, y2, Layer):
+    def __init__(self, x1, y1, x2, y2, color, Layer):
         self.p1 = game.Vector2(x1, y1)
         self.p2 = game.Vector2(x2, y2)
+        self.color = color
         self.layer = Layer
 
     def Draw(self):
-        game.draw.line(self.layer, "white", self.p1, self.p2)
+        game.draw.line(self.layer, self.color, self.p1, self.p2)
 
 class POINT:
     def __init__(self, center, Layer):
@@ -22,7 +23,7 @@ class POINT:
         self.rays = []
 
         #rays:
-        for angle in range(0, 360):
+        for angle in range(-30, 30):
             self.rays.append(RAY(self.center[0], self.center[1], angle, self.layer))
 
     def UpdateRays(self):
@@ -37,17 +38,25 @@ class POINT:
         game.draw.circle(self.layer, self.color, tuple(self.center), self.radius)
         #game.draw.rect(Canvas, "light green", self.hitbox, 1)
 
-    def CheckWall(self, boundary : BOUNDARY):
+    def CheckWall(self, walls : list, color):
+        self.position = game.Vector2(self.center[0], self.center[1])
         for ray in self.rays:
-            Intersect = ray.CheckCasting(boundary)
-            if Intersect != None:
-                game.draw.line(self.layer, "red", tuple(self.center), Intersect)
+            closestPoint = self.position
+            closestDist = numpy.Infinity
+            for wall in walls:
+                Intersect = ray.CheckCasting(wall)
+                if Intersect != None:
+                    distance = self.position.distance_to(Intersect)
+                    if distance < closestDist:
+                        closestDist = distance
+                        closestPoint = Intersect
+            game.draw.line(self.layer, color, tuple(self.center), closestPoint)
 
 class RAY:
     def __init__(self, x, y, angle, Layer):
         self.position = game.Vector2(x, y)
         self.angle = angle
-        self.direction = game.Vector2(numpy.cos(self.angle), numpy.sin(self.angle))
+        self.direction = game.Vector2(numpy.cos(numpy.deg2rad(self.angle)), numpy.sin(numpy.deg2rad(self.angle)))
         self.layer = Layer
         self.color = "green"
 

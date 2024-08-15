@@ -1,4 +1,5 @@
 import pygame as game
+import random
 import numpy
 import ClassesFile
 import FunctionsFile as funct
@@ -12,8 +13,11 @@ Switch = True
 Clock = game.time.Clock()
 FPS = 144 #FPS here
 DraggingPoint = None
-pointtest = ClassesFile.POINT([Width/2, Height/2], Canvas)
-Boundrytest = ClassesFile.BOUNDARY(600, 100, 600, 700, Canvas)
+point = ClassesFile.POINT([Width/2, Height/2], Canvas)
+point.color = "white"
+walls = []
+for i in range(5):
+    walls.append(ClassesFile.BOUNDARY(random.randint(0, Width), random.randint(0, Height), random.randint(0, Width), random.randint(0, Height), "grey", Canvas))
 #--------------------
 while Switch:
     events = game.event.get()
@@ -23,11 +27,12 @@ while Switch:
 
     #Main code here...
     Canvas.fill("black")
-    funct.Dragger(pointtest, events, DraggingPoint)
-    pointtest.UpdateRays()
-    pointtest.CheckWall(Boundrytest)
-    pointtest.Draw()
-    Boundrytest.Draw()
+    funct.Dragger(point, events, DraggingPoint)
+    point.UpdateRays()
+    point.CheckWall(walls, "red")
+    for wall in walls:
+        wall.Draw()
+    point.Draw()
 
 
     game.display.update()
